@@ -2,7 +2,6 @@ import { openAIWithStream} from "./openai";
 
 jest.useRealTimers();
 jest.setTimeout(60000)
-
 describe("", () => {
 
 
@@ -17,7 +16,7 @@ describe("", () => {
         dalleImageSize: 1024,
         chatPrompt: "DDD 是什么？"
       }, (content) => {console.log(content)},
-      () => {console.log("end")});
+      new AbortController);
   });
 
   it("test parseData", () => {

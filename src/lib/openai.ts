@@ -200,11 +200,10 @@ export async function openAIWithStream(
   input: string,
   openAiOptions: OpenAIOptions,
   onContent: (content: string) => void,
-  onStop: () => void
+  {signal = new AbortController().signal}
 ): Promise<string | null> {
   const options = { ...OpenAIDefaults(openAiOptions.apiKey), ...openAiOptions };
   const engine = options.completionEngine!;
-
   try {
     const inputMessages: ChatCompletionRequestMessage[] = [{ role: "user", content: input }];
     if (openAiOptions.chatPrompt && openAiOptions.chatPrompt.length > 0) {
@@ -228,7 +227,8 @@ export async function openAIWithStream(
             headers: { Authorization: `Bearer ${options.apiKey}`,
               "Content-Type": "application/json",
               "Accept": "text/event-stream"
-            }
+            },
+            signal: signal
           }).then((response) => {
             if (response.ok && response.body) {
               const reader = response.body.pipeThrough(new TextDecoderStream()).getReader();
@@ -240,7 +240,6 @@ export async function openAIWithStream(
                                     }) => {
                   if (done) {
                     reader.cancel();
-                    onStop();
                     return Promise.resolve({choices:[{message: {content: result}}]});
                   }
 

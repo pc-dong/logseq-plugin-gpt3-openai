@@ -65,7 +65,7 @@ const LogseqApp = () => {
   const [builtInCommands, setBuiltInCommands] = useState<Command[]>([]);
   const [userCommands, setUserCommands] = useState<Command[]>([]);
   const [appState, updateAppState] = useImmer<AppState>(defaultAppState);
-
+  let abortController = new AbortController();
   const openUI = async () => {
     const reloadedUserCommands = await loadUserCommands();
     setUserCommands(reloadedUserCommands);
@@ -190,8 +190,8 @@ const LogseqApp = () => {
     }
 
     const openAISettings = getOpenaiSettings();
-    const response = await openAIWithStream(command.prompt + inputText, openAISettings, onContent, () => {
-    });
+    abortController = new AbortController();
+    const response = await openAIWithStream(command.prompt + inputText, openAISettings, onContent, {signal: abortController.signal});
     if (response) {
       return response;
     } else {
@@ -260,7 +260,9 @@ const LogseqApp = () => {
   const onClose = () => {
     logseq.hideMainUI({ restoreEditingCursor: true });
   };
-
+  const onStop = () => {
+    return abortController
+  };
   return (
     <LogseqAI
       commands={allCommands}
@@ -268,6 +270,7 @@ const LogseqApp = () => {
       onClose={onClose}
       onInsert={onInsert}
       onReplace={onReplace}
+      onStop={onStop}
     />
   );
 };
