@@ -1,5 +1,7 @@
-import MDEditor from '@uiw/react-md-editor';
+import MarkdownPreview from '@uiw/react-markdown-preview';
 
 export const SuccessResult = ({ result }: { result: string }) => (
-  <MDEditor.Markdown source={result}/>
+  <div className = "overflow-auto max-h-80">
+    <MarkdownPreview source={result} />
+  </div>
 );
