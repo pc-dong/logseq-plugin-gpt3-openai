@@ -15,19 +15,18 @@ export const settingsSchema: SettingSchemaDesc[] = [
       "Your OpenAI API key. You can get one at https://beta.openai.com",
   },
   {
-    key: "baseUrl",
-    type: "string",
-    default: "",
-    title: "Base Url of OpenAI",
-    description:
-      "BaseUrl of OpenAI",
-  },
-  {
     key: "openAICompletionEngine",
     type: "string",
     default: "gpt-3.5-turbo",
     title: "OpenAI Completion Engine",
     description: "See Engines in OpenAI docs.",
+  },
+  {
+    key: "chatCompletionEndpoint",
+    type: "string",
+    default: "http://api.openai.com/v1/",
+    title: "OpenAI API Completion Endpoint",
+    description: "The endpoint to use for OpenAI API completion requests. You shouldn't need to change this."
   },
   {
     key: "chatPrompt",
@@ -42,7 +41,8 @@ export const settingsSchema: SettingSchemaDesc[] = [
     default: 1.0,
     title: "OpenAI Temperature",
     description:
-      "The temperature controls how much randomness is in the output.",
+      "The temperature controls how much randomness is in the output.<br/>"+
+      "You can set a different temperature in your own prompt templates by adding a 'prompt-template' property to the block.",
   },
   {
     key: "openAIMaxTokens",
@@ -90,7 +90,6 @@ function unescapeNewlines(s: string) {
 
 export function getOpenaiSettings(): PluginOptions {
   const apiKey = logseq.settings!["openAIKey"];
-  const baseUrl = logseq.settings!["baseUrl"];
   const completionEngine = logseq.settings!["openAICompletionEngine"];
   const injectPrefix = unescapeNewlines(logseq.settings!["injectPrefix"]);
   const temperature = Number.parseFloat(logseq.settings!["openAITemperature"]);
@@ -99,14 +98,15 @@ export function getOpenaiSettings(): PluginOptions {
     logseq.settings!["dalleImageSize"]
   ) as DalleImageSize;
   const chatPrompt = logseq.settings!["chatPrompt"];
+  const completionEndpoint = logseq.settings!["chatCompletionEndpoint"];
   return {
     apiKey,
-    baseUrl,
     completionEngine,
     temperature,
     maxTokens,
     dalleImageSize,
     injectPrefix,
     chatPrompt,
+    completionEndpoint,
   };
 }

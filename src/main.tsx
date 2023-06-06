@@ -190,6 +190,10 @@ const LogseqApp = () => {
     }
 
     const openAISettings = getOpenaiSettings();
+    // Set temperature of command instead of global temperature
+    if (command.temperature!=null && !Number.isNaN(command.temperature)) {
+      openAISettings.temperature = command.temperature;
+    }
     abortController = new AbortController();
     const response = await openAIWithStream(command.prompt + inputText, openAISettings, onContent, {signal: abortController.signal});
     if (response) {
