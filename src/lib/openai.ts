@@ -295,7 +295,8 @@ export async function openAIWithStream(
               Authorization: `Bearer ${options.apiKey}`,
               'Content-Type': 'application/json',
               'Accept': 'text/event-stream'
-            }
+            },
+            signal: signal
           }).then((response) => {
             if (response.ok && response.body) {
               const reader = response.body.pipeThrough(new TextDecoderStream()).getReader();
@@ -307,7 +308,6 @@ export async function openAIWithStream(
                                     }) => {
                   if (done) {
                     reader.cancel();
-                    onStop();
                     return Promise.resolve({ choices: [{ text: result }]});
                   }
 
