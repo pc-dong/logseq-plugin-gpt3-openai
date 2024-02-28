@@ -45,7 +45,7 @@
   },
   "logseq": {
     "name": "logseq-plugin-gpt3-openai",
-    "id": "_79n711y6e"
+    "id": "logseq-plugin-gpt3-openai"
   },
   "peerDependencies": {
     "semantic-release": "^19.0.2"

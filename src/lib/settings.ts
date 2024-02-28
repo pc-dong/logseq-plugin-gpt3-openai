@@ -22,6 +22,13 @@ export const settingsSchema: SettingSchemaDesc[] = [
     description: "See Engines in OpenAI docs.",
   },
   {
+    key: "apiMode",
+    type: "string",
+    default: "chat",
+    title: "API MODE（chat/llm）",
+    description: "See Engines in OpenAI docs.",
+  },
+  {
     key: "chatCompletionEndpoint",
     type: "string",
     default: "http://api.openai.com/v1/",
@@ -94,6 +101,7 @@ export function getOpenaiSettings(): PluginOptions {
   const injectPrefix = unescapeNewlines(logseq.settings!["injectPrefix"]);
   const temperature = Number.parseFloat(logseq.settings!["openAITemperature"]);
   const maxTokens = Number.parseInt(logseq.settings!["openAIMaxTokens"]);
+  const apiMode = logseq.settings!["apiMode"];
   const dalleImageSize = Number.parseInt(
     logseq.settings!["dalleImageSize"]
   ) as DalleImageSize;
@@ -108,5 +116,6 @@ export function getOpenaiSettings(): PluginOptions {
     injectPrefix,
     chatPrompt,
     completionEndpoint,
+    apiMode
   };
 }

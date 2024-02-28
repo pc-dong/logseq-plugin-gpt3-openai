@@ -17,6 +17,7 @@ export interface OpenAIOptions {
   dalleImageSize?: DalleImageSize;
   chatPrompt?: string;
   completionEndpoint?: string;
+  apiMode: string;
 }
 
 const OpenAIDefaults = (apiKey: string): OpenAIOptions => ({
@@ -25,6 +26,7 @@ const OpenAIDefaults = (apiKey: string): OpenAIOptions => ({
   temperature: 1.0,
   maxTokens: 1000,
   dalleImageSize: 1024,
+  apiMode: "chat",
 });
 
 const retryOptions = {
@@ -201,9 +203,10 @@ export async function openAIWithStream(
 ): Promise<string | null> {
   const options = { ...OpenAIDefaults(openAiOptions.apiKey), ...openAiOptions };
   const engine = options.completionEngine!;
+  const apiMode = options.apiMode!;
 
   try {
-    if (engine.startsWith("gpt-3.5") || engine.startsWith("gpt-4")) {
+    if (apiMode === "chat" || engine.startsWith("gpt-3.5") || engine.startsWith("gpt-4")) {
       const inputMessages: ChatCompletionRequestMessage[] = [{ role: "user", content: input }];
       if (openAiOptions.chatPrompt && openAiOptions.chatPrompt.length > 0) {
         inputMessages.unshift({ role: "system", content: openAiOptions.chatPrompt });
