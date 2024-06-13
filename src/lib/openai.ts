@@ -61,12 +61,12 @@ export async function whisper(file: File,openAiOptions:OpenAIOptions): Promise<s
     const apiKey = openAiOptions.apiKey;
     const baseUrl = openAiOptions.completionEndpoint ? "https://api.openai.com/v1" : openAiOptions.completionEndpoint;
     const model = 'whisper-1';
-  
+
     // Create a FormData object and append the file
     const formData = new FormData();
     formData.append('model', model);
     formData.append('file', file);
-  
+
     // Send a request to the OpenAI API using a form post
     const response = await backOff(
 
@@ -199,7 +199,7 @@ export async function openAIWithStream(
   input: string,
   openAiOptions: OpenAIOptions,
   onContent: (content: string) => void,
-  onStop: () => void
+  {signal = new AbortController().signal}
 ): Promise<string | null> {
   const options = { ...OpenAIDefaults(openAiOptions.apiKey), ...openAiOptions };
   const engine = options.completionEngine!;
@@ -230,7 +230,8 @@ export async function openAIWithStream(
               Authorization: `Bearer ${options.apiKey}`,
               'Content-Type': 'application/json',
               'Accept': 'text/event-stream'
-            }
+            },
+            signal: signal
           }).then((response) => {
             if (response.ok && response.body) {
               const reader = response.body.pipeThrough(new TextDecoderStream()).getReader();
@@ -242,7 +243,6 @@ export async function openAIWithStream(
                                     }) => {
                   if (done) {
                     reader.cancel();
-                    onStop();
                     return Promise.resolve({ choices: [{ message: { content: result } }] });
                   }
 
@@ -298,7 +298,8 @@ export async function openAIWithStream(
               Authorization: `Bearer ${options.apiKey}`,
               'Content-Type': 'application/json',
               'Accept': 'text/event-stream'
-            }
+            },
+            signal: signal
           }).then((response) => {
             if (response.ok && response.body) {
               const reader = response.body.pipeThrough(new TextDecoderStream()).getReader();
@@ -310,7 +311,6 @@ export async function openAIWithStream(
                                     }) => {
                   if (done) {
                     reader.cancel();
-                    onStop();
                     return Promise.resolve({ choices: [{ text: result }]});
                   }
 

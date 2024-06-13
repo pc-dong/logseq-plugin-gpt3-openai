@@ -87,13 +87,14 @@ export async function runGptBlock(b: IHookEvent) {
     if(openAISettings.injectPrefix && result.length == 0) {
       result = openAISettings.injectPrefix + result;
     }
+    let signal = new  AbortController().signal
 
     await openAIWithStream(currentBlock.content, openAISettings,  async (content: string) => {
       result += content || "";
       if(null != insertBlock) {
          await logseq.Editor.updateBlock(insertBlock.uuid, result);
       }
-    }, () => {});
+    }, {signal});
 
     if (!result) {
       logseq.App.showMsg("No OpenAI content" , "warning");
@@ -134,13 +135,13 @@ export async function runGptPage(b: IHookEvent) {
     if (openAISettings.injectPrefix && result.length == 0) {
       result = openAISettings.injectPrefix + result;
     }
-
+    let signal = new  AbortController().signal
     await openAIWithStream(pageContents, openAISettings,  async (content: string) => {
       result += content || "";
       if(null != insertBlock) {
         await logseq.Editor.updateBlock(insertBlock.uuid, result);
       }
-    }, () => {});
+    }, {signal});
     if (!result) {
       logseq.App.showMsg("No OpenAI content" , "warning");
       return;

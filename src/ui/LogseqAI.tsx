@@ -39,6 +39,7 @@ interface LogseqAIProps {
   onInsert: (text: string) => void;
   onReplace: (text: string) => void;
   onClose: () => void;
+  onStop: () => AbortController;
 }
 
 export const LogseqAI = ({
@@ -47,6 +48,7 @@ export const LogseqAI = ({
   onClose,
   onInsert,
   onReplace,
+  onStop,
 }: LogseqAIProps) => {
   const [commandState, setCommandState] = useState<CommandState>({
     status: "ready",
@@ -69,7 +71,9 @@ export const LogseqAI = ({
       // setCommandState({ status: "success", result });
     } catch (e) {
       if (e instanceof Error) {
-        setCommandState({ status: "error", error: e });
+        if(!onStop().signal.aborted) {
+          setCommandState({ status: "error", error: e });
+        }
       } else {
         setCommandState({ status: "error", error: new Error("Unknown error") });
       }
@@ -118,15 +122,26 @@ export const LogseqAI = ({
     const regenerateDisabled =
       commandState.status !== "success" && commandState.status !== "error";
 
+    const stopDisabled = commandState.status !== "success" && commandState.status !== "error";
     const commandToolbar = (
       <CommandToolbar
         left={
+        <>
           <CommandButton
             disabled={regenerateDisabled}
             onClick={runPreviousCommand}
           >
             Regenerate
           </CommandButton>
+          <CommandButton
+            disabled={stopDisabled}
+            onClick={() => {
+              onStop().abort()
+            }}
+          >
+            Stop
+          </CommandButton>
+        </>
         }
         right={
           <>
@@ -178,7 +193,7 @@ export const LogseqAI = ({
       }}
       className="fixed top-1/2 inset-0 z-50 overflow-y-auto"
     >
-      <Dialog.Panel className="bg-accent-dark max-w-2xl mx-auto rounded-lg shadow-2xl relative flex flex-col p-4">
+      <Dialog.Panel className="bg-accent-dark max-w-2xl mx-auto rounded-lg shadow-2xl relative flex flex-col p-4 overscroll-contain">
         <Combobox as="div" onChange={runCommand}>
           <div className="flex items-center text-lg font-medium border-b border-slate-500">
             <Combobox.Input
